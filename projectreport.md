@@ -20,6 +20,9 @@ Installing Dependencies:
 - drizzle-kit (for database migration)
 - argon2 (for password hashing)
 - zod (for serverside validation)
+- sonner (for toast notifications)
+
+
 
 -------------------------------------
 Links for tech stacks
@@ -28,6 +31,25 @@ Next.js: https://nextjs.org
 Tailwind CSS: https://tailwindcss.com  
 Shadcn/ui: https://ui.shadcn.com  
 Drizzle ORM: https://orm.drizzle.team/docs/get-started/mysql-new 
+
+-------------------------------------- 
+Basic Git Setup push and stagging
+--------------------------------------
+
+1. Create a repo on GitHub (web) and Copy repo URL (HTTPS or SSH).
+2. Initialise local project and push full code (first time)
+    - cd /path/to/your/project
+    - git init
+    - git add . (commit all files)
+    - git commit -m "Initial commit"
+    - # add remote (use your repo URL)
+    - git remote add origin git@github.com:your-username/your-repo.git   # SSH
+    - git branch -M main
+    - git push -u origin main
+3. Daily workflow (after initial push) — the 3 commands
+    - git add .
+    - git commit -m "Short message: what changed"
+    - git push
 
 -------------------------------------
 Commands I run
@@ -72,3 +94,5 @@ Logics pages and components:
 - auth.actions.tsx -> handling auth actions like register, login, logout, backend logics for fetch and store data in db 
 - auth.schema.ts -> serverside validation schema using zod
 - zod is doing for register and login as well both for server side validation ho raha h frontend nhi isko use krne ke liye we have to use it in auth.actions.tsx file
+
+
