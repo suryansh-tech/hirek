@@ -52,7 +52,7 @@ Basic Git Setup push and stagging
     - git commit -m "Short message"
     - git push origin main
 
-
+bash```
 -------------------------------------
 Commands I run
 -------------------------------------
@@ -78,7 +78,7 @@ Commands I run
 
 - install zod for serverside validation
 >>> npm i zod
-
+```
 
 
 learning resource:
