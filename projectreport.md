@@ -47,9 +47,11 @@ Basic Git Setup push and stagging
     - git branch -M main
     - git push -u origin main
 3. Daily workflow (after initial push) — the 3 commands
+    - git pull origin main --rebase
     - git add .
-    - git commit -m "Short message: what changed"
-    - git push
+    - git commit -m "Short message"
+    - git push origin main
+
 
 -------------------------------------
 Commands I run
