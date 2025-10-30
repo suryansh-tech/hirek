@@ -7,6 +7,7 @@ import { users } from "@/drizzle/schema";
 import argon2 from "argon2";
 import { eq, or } from "drizzle-orm";
 import { LoginUserData, loginUserSchema, RegisterUserData, registerUserSchema } from "../auth.schema";
+import { createSessionAndSetCookie } from "./use-cases/sessions";
 
 // 👉 Server Actions in Next.js are special functions that run only on the server, not in the user’s browser.
 
@@ -54,7 +55,15 @@ export const registrationAction = async (data: RegisterUserData) => {
         const hashPassword = await argon2.hash(password);
 
         // inserting into db
-        await db.insert(users).values({ name, userName, email, password: hashPassword, role });
+        const [result] = await db.insert(users).values({ name, userName, email, password: hashPassword, role });
+        // by default db m insert query lgane pr kux default value deta h
+        // fieldCount: 0,
+        // affectedRows: 1,
+        //* insertId: 23 (here is your new user ID)
+        // info: .....etc
+
+        //* ab new user aayega to uska sessions bhi store krna pages with uski particular db ki insert id se 
+        await createSessionAndSetCookie(result.insertId);
 
         // return success response to client jaha se call hua h
         return {
@@ -113,6 +122,10 @@ export const loginUserAction = async (data: LoginUserData) => {
                 status: "ERROR",
                 message: "Invalid Email or Password!",
             }
+        
+        // if password valid -> creating session for user so that user dont need to fill login form n num of times
+        // when we create an session humko ye session id banana padega eak unique id jo user ko identify karega kyyki db m toh bahut user h konsa user ka session kya h uske like eak `id` ho ab hum koi new id create nhi krne wale -> `jab user login karega toh uska sara data milega uss data m uski id num bhi milegi` to bs iss id ko lekr he session create kr denge for that specific user id.
+        await createSessionAndSetCookie(user.id);
         
         // if password match
         return {

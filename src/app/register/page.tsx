@@ -5,60 +5,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RegisterUserWithConfirmData, registerUserWithConfirmSchema } from '@/features/auth/auth.schema';
 import { registrationAction } from '@/features/auth/server/auth.actions';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowBigUpIcon, Eye, EyeOff, Lock, Mail, User, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import React, { ChangeEvent, FormEvent, useState } from 'react'
-// import { registrationAction } from './registrationAction.action';
+import { useForm } from 'react-hook-form';
+
 import { toast } from 'sonner';
 
-interface RegistrationFormData {
-  name: string;
-  userName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  role: "applicant" | "employer";
-}
+
 
 const Registration: React.FC = () => {
-   const [formData, setFormData] = useState<RegistrationFormData>({
-    name: "",
-    userName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "applicant",
+  
+  const {
+      register,
+      handleSubmit,
+      watch,
+      formState: { errors },
+    } = useForm({
+      resolver: zodResolver(registerUserWithConfirmSchema), //resolver is option you pass to integrate external validation library like zod
   });
+
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-   const handleInputChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
-  // console.log(formData);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    const registrationData = {
-        name: formData.name.trim(),
-        userName: formData.userName.trim(),
-        email: formData.email.toLowerCase().trim(),
-        password: formData.password.trim(),
-        role: formData.role,
-    }
-
-    // before sending data to server, we need to check both pass is same 
-    if(formData.password !== formData.confirmPassword) return toast.error("Passwords do not match");
+  const onSubmit = async (data: RegisterUserWithConfirmData) => {
 
     // server se response aayega sucess ya error
-    const result = await registrationAction(registrationData);
+    const result = await registrationAction(data);
 
     // 👉 if status is SUCCESS, show success toast else show error toast
     if(result.status === "SUCCESS") toast.success(result.message);
@@ -79,7 +57,7 @@ const Registration: React.FC = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit}  className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)}  className="space-y-6">
             {/* Name Field */}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name *</Label>
@@ -87,15 +65,14 @@ const Registration: React.FC = () => {
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="name"
-                  name="name"
+                  // name="name"
                   type="text"
                   placeholder="Enter your full name"
                   required
-                  value={formData.name}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("name", e.target.value)
-                  }
-                  className={`pl-10 `}
+                  {...register("name")} // remember the name is as per the schema for zod jo zod m kiya h validation ke time same 
+                  className={`pl-10 ${
+                    errors.name ? "border-destructive" : ""
+                  }`}
                 />
               </div>
             </div>
@@ -107,17 +84,21 @@ const Registration: React.FC = () => {
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="userName"
-                  name="userName"
+                  // name="userName"
                   type="text"
                   placeholder="Choose a username"
                   required
-                  value={formData.userName}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("userName", e.target.value)
-                  }
-                  className={`pl-10 `}
+                  {...register("userName")}
+                  className={`pl-10 ${
+                    errors.userName ? "border-destructive" : ""
+                  }`}
                 />
               </div>
+              {errors.userName && (
+                <p className='text-sm text-destructive'>
+                    {errors.userName.message}
+                </p>
+              )}
             </div>
 
             {/* Email Field */}
@@ -127,28 +108,30 @@ const Registration: React.FC = () => {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
-                  name="email"
+                  // name="email" noo need of name attribute this as we are using react-hook-form
                   type="email"
                   placeholder="Enter your email"
                   required
-                  value={formData.email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("email", e.target.value)
-                  }
-                  className={`pl-10 `}
+                  {...register("email")}
+                  className={`pl-10 ${
+                    errors.email ? "border-destructive" : ""
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className='text-sm text-destructive'>
+                    {errors.email.message}
+                </p>
+              )}
             </div>
 
             {/* Role Selection */}
             <div className="space-y-2 w-full">
               <Label htmlFor="role">I am a *</Label>
               <Select
-                name="role"
-                value={formData.role}
-                onValueChange={(value: "applicant" | "employer") =>
-                  handleInputChange("role", value)
-                }
+                // name="role"
+                {...register("role")}
+            
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your role" />
@@ -167,14 +150,11 @@ const Registration: React.FC = () => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="password"
-                  name="password"
+                  // name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
                   required
-                  value={formData.password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("password", e.target.value)
-                  }
+                  {...register("password")}
                   className={`pl-10 pr-10 `}
                 />
 
@@ -192,6 +172,11 @@ const Registration: React.FC = () => {
                   )}
                 </Button>
               </div>
+              {errors.password && (
+                <p className='text-sm text-destructive'>
+                    {errors.password.message}
+                </p>
+              )}
             </div>
 
             {/* Confirm Password Field */}
@@ -201,14 +186,11 @@ const Registration: React.FC = () => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
-                  name="confirmPassword"
+                  // name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
                   required
-                  value={formData.confirmPassword}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("confirmPassword", e.target.value)
-                  }
+                  {...register("confirmPassword")}
                   className={`pl-10 pr-10 `}
                 />
                 <Button
@@ -225,6 +207,11 @@ const Registration: React.FC = () => {
                   )}
                 </Button>
               </div>
+              {errors.confirmPassword && (
+                <p className='text-sm text-destructive'>
+                    {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}

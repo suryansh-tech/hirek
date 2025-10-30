@@ -21,6 +21,9 @@ Installing Dependencies:
 - argon2 (for password hashing)
 - zod (for serverside validation)
 - sonner (for toast notifications)
+- react-hook-form (for form handling)
+- crypto (for session token generation) gen random values *inbuilt in nodejs*
+- crypto.createhash("sha-256") -> one way hasing krta h bapis se comvert nhi kr skte h
 
 
 
@@ -31,6 +34,10 @@ Next.js: https://nextjs.org
 Tailwind CSS: https://tailwindcss.com  
 Shadcn/ui: https://ui.shadcn.com  
 Drizzle ORM: https://orm.drizzle.team/docs/get-started/mysql-new 
+Argon2: https://www.npmjs.com/package/argon2
+Zod: https://www.npmjs.com/package/zod
+React Hook Form: https://www.npmjs.com/package/react-hook-form
+
 
 -------------------------------------- 
 Basic Git Setup push and stagging
@@ -79,6 +86,12 @@ Commands I run
 - install zod for serverside validation
 >>> npm i zod
 
+- install react-hook-form for form handling
+>>> npm i react-hook-form
+
+- install @hookform/resolvers for integrating zod with react-hook-form
+>>> npm i @hookform/resolvers (basically hum eak he zod validation ko server side and react hook form se client side dono m use kr pa rahe h integrate ke liye resolver)
+
 
 
 learning resource:
@@ -96,5 +109,6 @@ Logics pages and components:
 - auth.actions.tsx -> handling auth actions like register, login, logout, backend logics for fetch and store data in db 
 - auth.schema.ts -> serverside validation schema using zod
 - zod is doing for register and login as well both for server side validation ho raha h frontend nhi isko use krne ke liye we have to use it in auth.actions.tsx file
+- when we create an session humko ye session id banana padega eak unique id jo user ko identify karega kyyki db m toh bahut user h konsa user ka session kya h uske like eak `id` ho ab hum koi new id create nhi krne wale -> `jab user login karega toh uska sara data milega uss data m uski id num bhi milegi` to bs iss id ko lekr he session create kr denge for that specific user id.
 
 

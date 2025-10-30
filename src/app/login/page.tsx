@@ -4,59 +4,52 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoginUserData, loginUserSchema } from '@/features/auth/auth.schema';
 import { loginUserAction } from '@/features/auth/server/auth.actions';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, Mail, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import React, { ChangeEvent, FormEvent, useState } from 'react'
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
+
 
 const LoginForm: React.FC = () => {
-   const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginUserSchema), //resolver is option you pass to integrate external validation library like zod
   });
 
   const [showPassword, setShowPassword] = useState(false);
 
-   const handleInputChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const onSubmit = async (data: LoginUserData) => {
 
-  // console.log(formData);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
     try {
-      const LoginData = {
-        email: formData.email.toLowerCase().trim(),
-        password: formData.password,
-    }
 
-    // sending login data to server action for login
-    const result = await loginUserAction(LoginData);
 
-    // if login successful showing a toast meassage 
-    if(result.status === "SUCCESS") toast.success(result.message);
-    else toast.error(result.message);
+      // sending login data to server action for login
+      const result = await loginUserAction(data);
+
+      // if login successful showing a toast meassage 
+      if (result.status === "SUCCESS") toast.success(result.message);
+      else toast.error(result.message);
 
     } catch (error) {
-      
+
     }
   }
 
   return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-            
+
 
           <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
             <UserCheck className="w-8 h-8 text-primary-foreground" />
@@ -66,8 +59,8 @@ const LoginForm: React.FC = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit}  className="space-y-6">
-    
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
 
             {/* Email Field */}
             <div className="space-y-2">
@@ -76,17 +69,21 @@ const LoginForm: React.FC = () => {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
-                  name="email"
+                  // name="email"
                   type="email"
                   placeholder="Enter your email"
                   required
-                  value={formData.email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("email", e.target.value)
-                  }
-                  className={`pl-10 `}
+                  {...register("email")}
+                  className={`pl-10 ${
+                    errors.email ? "border-destructive" : ""
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className='text-sm text-destructive'>
+                    {errors.email.message}
+                </p>
+              )}
             </div>
 
 
@@ -98,15 +95,14 @@ const LoginForm: React.FC = () => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="password"
-                  name="password"
+                  // name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
                   required
-                  value={formData.password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  className={`pl-10 pr-10 `}
+                  {...register("password")}
+                  className={`pl-10 ${
+                    errors.password ? "border-destructive" : ""
+                  }`}
                 />
 
                 <Button
@@ -123,13 +119,17 @@ const LoginForm: React.FC = () => {
                   )}
                 </Button>
               </div>
+              {errors.password && (
+                <p className='text-sm text-destructive'>
+                    {errors.password.message}
+                </p>
+              )}
             </div>
 
-           
 
             {/* Submit Button */}
             <Button type="submit" className="w-full">
-              Login 
+              Login
             </Button>
 
             <div className="text-center">
