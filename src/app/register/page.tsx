@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowBigUpIcon, Eye, EyeOff, Lock, Mail, User, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import React, { ChangeEvent, FormEvent, useState } from 'react'
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import { toast } from 'sonner';
 
@@ -23,6 +23,7 @@ const Registration: React.FC = () => {
       register,
       handleSubmit,
       watch,
+      control,
       formState: { errors },
     } = useForm({
       resolver: zodResolver(registerUserWithConfirmSchema), //resolver is option you pass to integrate external validation library like zod
@@ -128,19 +129,22 @@ const Registration: React.FC = () => {
             {/* Role Selection */}
             <div className="space-y-2 w-full">
               <Label htmlFor="role">I am a *</Label>
-              <Select
-                // name="role"
-                {...register("role")}
-            
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="applicant">Job Applicant</SelectItem>
-                  <SelectItem value="employer">Employer</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller name='role' control={control} render={({field}) => (
+                <Select
+                  // name="role"
+                  value={field.value} onValueChange={field.onChange}
+              
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="applicant">Job Applicant</SelectItem>
+                    <SelectItem value="employer">Employer</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}>
+              </Controller>
             </div>
 
             {/* Password Field */}
